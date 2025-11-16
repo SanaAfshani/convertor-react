@@ -1,5 +1,4 @@
-const WALLEX_BASE_URL = process.env.VITE_WALLEX_BASE_URL ?? "https://api.wallex.ir/";
-const WALLEX_API_KEY = process.env.WALLEX_API_KEY;
+const WALLEX_BASE_URL = process.env.VITE_WALLEX_BASE_URL ?? "https://api.wallex.ir/v1/all-markets";
 
 export const config = {
     runtime: "edge"
@@ -7,15 +6,11 @@ export const config = {
 
 export default async function handler(request: Request): Promise<Response> {
     try {
-        const url = `${WALLEX_BASE_URL}/v1/all-markets`;
+        const url = `${WALLEX_BASE_URL}/all-markets`;
 
         const headers: Record<string, string> = {
             "Content-Type": "application/json"
         };
-
-        if (WALLEX_API_KEY) {
-            headers["X-API-KEY"] = WALLEX_API_KEY;
-        }
 
         const reqUrl = new URL(request.url);
         const qs = reqUrl.search;

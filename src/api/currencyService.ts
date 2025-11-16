@@ -53,7 +53,7 @@ interface CurrenciesResponse {
 }
 
 export const fetchMarkets = async (): Promise<Market[]> => {
-  const { data } = await wallexClient.get<AllMarketsResponse>("v1/all-markets");
+  const { data } = await wallexClient.get<AllMarketsResponse>("/all-markets");
   const symbols = data.result.symbols ?? {};
   const markets: Market[] = [];
 
@@ -79,7 +79,7 @@ export const fetchMarkets = async (): Promise<Market[]> => {
 };
 
 export const fetchCurrencies = async (): Promise<Currency[]> => {
-  const { data } = await wallexClient.get<CurrenciesResponse>("v1/currencies");
+  const { data } = await wallexClient.get<CurrenciesResponse>("/currencies");
   const symbols = data.result ?? {};
   return Object.values(symbols).map((c) => ({
     symbol: c.key,
