@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchMarkets } from "../api/currencyService";
+import { fetchMarkets } from "../services/currencyService";
 import { Market } from "../types/market";
 
 export const useMarkets = () =>

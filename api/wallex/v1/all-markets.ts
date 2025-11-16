@@ -1,46 +1,36 @@
-const WALLEX_BASE_URL = process.env.VITE_WALLEX_BASE_URL ?? "https://api.wallex.ir/v1/all-markets";
+const WALLEX_MARKETS_URL =
+    process.env.WALLEX_MARKETS_URL ?? "https://api.wallex.ir/v1/all-markets";
 
-export const config = {
-    runtime: "edge"
-};
-
-export default async function handler(request: Request): Promise<Response> {
+export default async function handler(req: any, res: any) {
     try {
-        const url = `${WALLEX_BASE_URL}/all-markets`;
+        const url = (req.url as string) || "";
+        const search = url.includes("?") ? url.substring(url.indexOf("?")) : "";
 
-        const headers: Record<string, string> = {
-            "Content-Type": "application/json"
-        };
+        const targetUrl = `${WALLEX_MARKETS_URL}${search}`;
 
-        const reqUrl = new URL(request.url);
-        const qs = reqUrl.search;
-        const targetUrl = qs ? url + qs : url;
-
-        const res = await fetch(targetUrl, {
+        const upstream = await fetch(targetUrl, {
             method: "GET",
-            headers
-        });
-
-        const text = await res.text();
-
-        return new Response(text, {
-            status: res.status,
             headers: {
-                "Content-Type": "application/json",
-                "Cache-Control": "s-maxage=15, stale-while-revalidate=30"
+                "Content-Type": "application/json"
             }
         });
+
+        const text = await upstream.text();
+
+        res
+            .status(upstream.status)
+            .setHeader("Content-Type", "application/json")
+            .send(text);
     } catch (err) {
-        console.error("all-markets proxy error:", err);
-        return new Response(
-            JSON.stringify({
-                success: false,
-                message: "Wallex proxy error for all-markets"
-            }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json" }
-            }
-        );
+        console.error("Wallex all-markets proxy error:", err);
+        res
+            .status(500)
+            .setHeader("Content-Type", "application/json")
+            .send(
+                JSON.stringify({
+                    success: false,
+                    message: "Wallex proxy error for all-markets"
+                })
+            );
     }
 }

@@ -1,42 +1,36 @@
-const WALLEX_BASE_URL = process.env.VITE_WALLEX_BASE_URL ?? "https://api.wallex.ir/v1/currencies";
+const WALLEX_API_BASE_URL =
+    process.env.WALLEX_API_BASE_URL ?? "https://api.wallex.ir";
 
-export default async function handler(request: Request): Promise<Response> {
+export default async function handler(req: any, res: any) {
     try {
-        const url = `${WALLEX_BASE_URL}/currencies`;
+        const url = (req.url as string) || "";
+        const search = url.includes("?") ? url.substring(url.indexOf("?")) : "";
 
-        const headers: Record<string, string> = {
-            "Content-Type": "application/json"
-        };
+        const targetUrl = `${WALLEX_API_BASE_URL}/v1/currencies${search}`;
 
-        const reqUrl = new URL(request.url);
-        const qs = reqUrl.search;
-        const targetUrl = qs ? url + qs : url;
-
-        const res = await fetch(targetUrl, {
+        const upstream = await fetch(targetUrl, {
             method: "GET",
-            headers
-        });
-
-        const text = await res.text();
-
-        return new Response(text, {
-            status: res.status,
             headers: {
-                "Content-Type": "application/json",
-                "Cache-Control": "s-maxage=60, stale-while-revalidate=120"
+                "Content-Type": "application/json"
             }
         });
+
+        const text = await upstream.text();
+
+        res
+            .status(upstream.status)
+            .setHeader("Content-Type", "application/json")
+            .send(text);
     } catch (err) {
-        console.error("currencies proxy error:", err);
-        return new Response(
-            JSON.stringify({
-                success: false,
-                message: "Wallex proxy error for currencies"
-            }),
-            {
-                status: 500,
-                headers: { "Content-Type": "application/json" }
-            }
-        );
+        console.error("Wallex currencies proxy error:", err);
+        res
+            .status(500)
+            .setHeader("Content-Type", "application/json")
+            .send(
+                JSON.stringify({
+                    success: false,
+                    message: "Wallex proxy error for currencies"
+                })
+            );
     }
 }

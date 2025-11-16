@@ -1,0 +1,9 @@
+{
+  "$schema": "vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/wallex/:path*",
+      "destination": "/api/wallex/proxy?path=:path*"
+    }
+  ]
+}
