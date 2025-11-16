@@ -8,7 +8,7 @@ export interface ApiErrorShape {
 }
 
 const baseURL =
-    import.meta.env?.VITE_WALLEX_BASE_URL?.toString() || "/wallex";
+    import.meta.env?.VITE_WALLEX_BASE_URL?.toString() || "/api/wallex";
 
 const wallexClient = axios.create({
     baseURL,

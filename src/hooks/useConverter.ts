@@ -9,7 +9,7 @@ export const useConverter = (
 ) => {
   const [fromCurrency, setFromCurrency] = useState("USDT");
   const [toCurrency, setToCurrency] = useState("TMN");
-  const [fromAmount, setFromAmount] = useState("1");
+  const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
   const [lastChanged, setLastChanged] = useState<"from" | "to">("from");
 
@@ -104,6 +104,46 @@ export const useConverter = (
     );
   };
 
+  const handleSwap = () => {
+    if (!markets) return;
+
+    const newFromCurrency = toCurrency;
+    const newToCurrency = fromCurrency;
+
+    const baseRaw =
+        lastChanged === "from" ? stripSeparators(fromAmount) : stripSeparators(toAmount);
+
+    const baseNum = Number(baseRaw);
+
+    setFromCurrency(newFromCurrency);
+    setToCurrency(newToCurrency);
+
+    if (!baseRaw || Number.isNaN(baseNum)) {
+      const prevFromAmount = fromAmount;
+      const prevToAmount = toAmount;
+      setFromAmount(prevToAmount);
+      setToAmount(prevFromAmount);
+      setLastChanged((prev) => (prev === "from" ? "to" : "from"));
+      return;
+    }
+
+    setLastChanged("from");
+    setFromCurrency(newFromCurrency);
+    setToCurrency(newToCurrency);
+
+    setFromAmount(formatForInput(baseNum));
+
+    const result = convertAmount(baseNum, newFromCurrency, newToCurrency, markets);
+    if (result == null) {
+      setToAmount("");
+      return;
+    }
+
+    const precision = findPrecision(newToCurrency, currencies);
+    setToAmount(formatWithPrecision(result, precision));
+  };
+
+
   return {
     fromCurrency,
     toCurrency,
@@ -112,6 +152,7 @@ export const useConverter = (
     handleFromAmountChange,
     handleToAmountChange,
     handleFromCurrencyChange,
-    handleToCurrencyChange
+    handleToCurrencyChange,
+    handleSwap
   };
 };

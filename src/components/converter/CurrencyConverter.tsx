@@ -24,11 +24,14 @@ const CurrencyConverter: React.FC = () => {
     handleFromAmountChange,
     handleToAmountChange,
     handleFromCurrencyChange,
-    handleToCurrencyChange
+    handleToCurrencyChange,
+    handleSwap
   } = useConverter(markets,currencies);
 
   const isLoading = loadingCurrencies || loadingMarkets;
   const error = currenciesError || marketsError;
+
+  //throw new Error("Test ErrorBoundary");
 
   if (isLoading) {
     return (
@@ -57,6 +60,7 @@ const CurrencyConverter: React.FC = () => {
       onToAmountChange={handleToAmountChange}
       onFromCurrencyChange={handleFromCurrencyChange}
       onToCurrencyChange={handleToCurrencyChange}
+      onSwap={handleSwap}
     />
   );
 };

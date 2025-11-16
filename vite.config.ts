@@ -6,12 +6,12 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/wallex": {
+      "/api/wallex": {
         target: "https://api.wallex.ir/",
         changeOrigin: true,
         secure: true,
-        rewrite: (path) => path.replace(/^\/wallex/, "")
+        rewrite: (path) => path.replace(/^\/api\/wallex/, "")
       }
     }
-  }
+  },
 });

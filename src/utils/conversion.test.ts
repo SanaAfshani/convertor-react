@@ -3,23 +3,32 @@ import { convertAmount } from "./conversion";
 import type { Market } from "../types/market";
 
 const markets: Market[] = [
-  { baseSymbol: "BTC", quoteSymbol: "USDT", lastPrice: 50000 },
-  { baseSymbol: "ETH", quoteSymbol: "USDT", lastPrice: 4000 }
+  { baseSymbol: "USDT", quoteSymbol: "TMN", lastPrice: 112_898 },
+  { baseSymbol: "BTC", quoteSymbol: "USDT", lastPrice: 60_000 }
 ];
 
 describe("convertAmount", () => {
-  it("converts between two assets via USDT pivot", () => {
-    const result = convertAmount(1, "BTC", "ETH", markets);
-    expect(result).toBeCloseTo(12.5);
+  it("converts between same currency as identity", () => {
+    expect(convertAmount(10, "USDT", "USDT", markets)).toBe(10);
   });
 
-  it("returns same amount when currencies are equal", () => {
-    const result = convertAmount(10, "USDT", "USDT", markets);
-    expect(result).toBe(10);
+  it("converts from USDT to TMN directly", () => {
+    const result = convertAmount(1, "USDT", "TMN", markets);
+    expect(result).toBeCloseTo(112_898);
   });
 
-  it("returns null when market data is missing", () => {
-    const result = convertAmount(1, "BTC", "IRR", markets);
+  it("converts from TMN to USDT using inverse", () => {
+    const result = convertAmount(112_898, "TMN", "USDT", markets);
+    expect(result).toBeCloseTo(1);
+  });
+
+  it("converts from BTC to TMN via pivot USDT", () => {
+    const result = convertAmount(1, "BTC", "TMN", markets);
+    expect(result).toBeCloseTo(60_000 * 112_898);
+  });
+
+  it("returns null when no path exists", () => {
+    const result = convertAmount(1, "EUR", "USDT", markets);
     expect(result).toBeNull();
   });
 });
